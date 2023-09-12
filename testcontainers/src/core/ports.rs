@@ -60,7 +60,17 @@ impl From<PortMap> for Ports {
                     let external_port = parse_port(external_port);
 
                     // switch on the IP version of the `HostIp`
-                    let mapping = match binding.host_ip.map(|ip| ip.parse()) {
+                    let mapping = match binding
+                        .host_ip
+                        .map(|ip| {
+                            if ip.is_empty() {
+                                "127.0.0.1".to_string()
+                            } else {
+                                ip
+                            }
+                        })
+                        .map(|ip| ip.parse())
+                    {
                         Some(Ok(IpAddr::V4(_))) => {
                             log::debug!(
                                 "Registering IPv4 port mapping: {} -> {}",
